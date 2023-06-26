@@ -42,11 +42,9 @@ def poll_data_to_redis():
                 first_line = file.readline()
                 if first_line != "":
                     last_timestamp = datetime.strptime(first_line.strip(), "%Y-%m-%d %H:%M:%S")
-            print(last_timestamp)
-            if last_timestamp:
-                data = collection.find({"timestamp": {"$gt":last_timestamp}})
-            else:
-                data = collection.find()
+                    data = collection.find({"timestamp": {"$gt":last_timestamp}})     
+                else:
+                    data = collection.find()
         except FileNotFoundError:
             data = collection.find()
         # Store data in Redis
@@ -54,8 +52,10 @@ def poll_data_to_redis():
             for item in data:
                 id,reporter_id ,timestamp, metric_id, metric_value, message = item.values()
                 key = f"{reporter_id}:{str(timestamp)}"
+                info = f"{item}"
+                print(info)
                 try: 
-                    redis_client.set(key,"info")
+                    redis_client.set(key,info)
                 except: 
                     print("\n\033[31m" +"The redis server is down Please check the status of the server ,will try to access again in 30 seconds"+"\033[0m\n")
                     time.sleep(sleep_time)
